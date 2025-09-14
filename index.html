@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城市版人员毛利率计算器</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c6fbb;
+            --secondary: #8ec5fc;
+            --success: #198754;
+            --light-bg: #f0f8ff;
+            --highlight: #fff9c4;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--secondary) 0%, #e0eafc 100%);
+            padding: 15px 10px;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .calculator-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #4a93d6 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .app-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 5px 0 0;
+        }
+        
+        .input-section {
+            padding: 20px;
+            background: var(--light-bg);
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .input-group-mobile {
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .highlight-input {
+            background-color: var(--highlight);
+            border-left: 4px solid #ffc107;
+        }
+        
+        .input-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-label i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .form-control-mobile {
+            height: 50px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            font-size: 1.1rem;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-control-mobile:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(44, 111, 187, 0.25);
+        }
+        
+        .city-selector {
+            display: flex;
+            flex-direction: column;
+            margin-top: 15px;
+        }
+        
+        .city-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .city-display div {
+            margin: 5px 0;
+        }
+        
+        .result-section {
+            padding: 25px 20px;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--primary);
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .result-title i {
+            margin-right: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .result-title.collapsed i {
+            transform: rotate(-90deg);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #eaeaea;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .result-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .primary-result {
+            color: var(--primary);
+        }
+        
+        .success-result {
+            color: var(--success);
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn-mobile {
+            height: 55px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-mobile i {
+            margin-right: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #4a93d6 100%);
+            border: none;
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .info-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .collapse-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+        }
+        
+        .collapse-content.show {
+            max-height: 1000px;
+        }
+        
+        .hidden-field {
+            display: none;
+        }
+        
+        .other-city-fields {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .other-city-fields.show {
+            display: block;
+        }
+        
+        .collapsible-section {
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .collapsible-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .collapsible-header .input-label {
+            margin-bottom: 0;
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .collapsible-content.show {
+            max-height: 200px;
+        }
+        
+        .collapsible-content .input-group-mobile {
+            margin-bottom: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        
+        @media (max-width: 480px) {
+            .app-title {
+                font-size: 1.3rem;
+            }
+            
+            .form-control-mobile {
+                height: 45px;
+                font-size: 1rem;
+            }
+            
+            .result-value {
+                font-size: 1rem;
+            }
+            
+            .btn-mobile {
+                height: 50px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="app-header">
+            <h1 class="app-title"><i class="fas fa-calculator"></i> 人员毛利率计算器</h1>
+            <p class="app-subtitle">城市版 - 选择城市自动填充社保公积金</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group-mobile highlight-input">
+                <div class="input-label"><i class="fas fa-user"></i> 人选姓名</div>
+                <input type="text" class="form-control form-control-mobile" id="personName" value="候选人A">
+            </div>
+            
+            <div class="input-group-mobile hidden-field">
+                <div class="input-label"><i class="fas fa-bullseye"></i> 目标毛利率 (%)</div>
+                <input type="number" class="form-control form-control-mobile" id="targetMargin" value="25" step="0.1" min="0" max="100">
+            </div>
+            
+            <div class="input-group-mobile highlight-input">
+                <div class="input-label"><i class="fas fa-tag"></i> 外部报价 (元/人天)</div>
+                <input type="number" class="form-control form-control-mobile" id="externalQuote" value="0" step="0.01">
+            </div>
+            
+            <div class="input-group-mobile hidden-field">
+                <div class="input-label"><i class="fas fa-percent"></i> 折扣</div>
+                <input type="number" class="form-control form-control-mobile" id="discount" value="1" step="0.01" min="0.1" max="1">
+            </div>
+            
+            <div class="input-group-mobile hidden-field">
+                <div class="input-label"><i class="fas fa-calendar-alt"></i> 年工作人天</div>
+                <input type="number" class="form-control form-control-mobile" id="workDays" value="248">
+            </div>
+            
+            <div class="input-group-mobile hidden-field">
+                <div class="input-label"><i class="fas fa-pause-circle"></i> 闲置率 (%)</div>
+                <input type="number" class="form-control form-control-mobile" id="idleRate" value="0" step="0.1" min="0" max="100">
+            </div>
+            
+            <div class="input-group-mobile highlight-input">
+                <div class="input-label"><i class="fas fa-money-bill-wave"></i> 月度薪资 (元)</div>
+                <input type="number" class="form-control form-control-mobile" id="salary" value="1000" step="any">
+            </div>
+            
+            <div class="input-group-mobile">
+                <div class="input-label"><i class="fas fa-map-marker-alt"></i> 选择城市</div>
+                <select class="form-control form-control-mobile" id="citySelector">
+                    <option value="北京" selected>北京 - 社保1807.57, 公积金121.00</option>
+                    <option value="成都">成都 - 社保1130.46, 公积金168.00</option>
+                    <option value="南京">南京 - 社保1219.75, 公积金182.00</option>
+                    <option value="西宁">西宁 - 社保1230.12, 公积金320.00</option>
+                    <option value="呼和浩特">呼和浩特 - 社保1252.39, 公积金181.60</option>
+                    <option value="重庆">重庆 - 社保1168.23, 公积金168.00</option>
+                    <option value="广州">广州 - 社保1241.23, 公积金184.00</option>
+                    <option value="南昌">南昌 - 社保986.13, 公积金208.00</option>
+                    <option value="乌鲁木齐">乌鲁木齐 - 社保1259.76, 公积金136.00</option>
+                    <option value="上海">上海 - 社保2005.49, 公积金215.00</option>
+                    <option value="兰州">兰州 - 社保1114.71, 公积金162.00</option>
+                    <option value="石家庄">石家庄 - 社保1120.97, 公积金616.00</option>
+                    <option value="福州">福州 - 社保1070.50, 公积金157.00</option>
+                    <option value="沈阳">沈阳 - 社保1173.63, 公积金252.00</option>
+                    <option value="哈尔滨">哈尔滨 - 社保1295.08, 公积金166.00</option>
+                    <option value="西藏">西藏 - 社保1679.26, 公积金168.00</option>
+                    <option value="西安">西安 - 社保1196.90, 公积金173.00</option>
+                    <option value="深圳">深圳 - 社保1162.28, 公积金188.80</option>
+                    <option value="长沙">长沙 - 社保1108.56, 公积金154.00</option>
+                    <option value="合肥">合肥 - 社保984.90, 公积金165.00</option>
+                    <option value="济南">济南 - 社保1097.82, 公积金176.00</option>
+                    <option value="郑州">郑州 - 社保933.74, 公积金168.00</option>
+                    <option value="天津">天津 - 社保1369.56, 公积金278.00</option>
+                    <option value="其他">其他 - 手动输入社保公积金</option>
+                </select>
+                
+                <div class="city-display" id="cityDisplay">
+                    <div>月度社保: <span id="displaySocialSecurity">1807.57</span> 元</div>
+                    <div>月度公积金: <span id="displayHousingFund">121.00</span> 元</div>
+                </div>
+                
+                <div class="other-city-fields" id="otherCityFields">
+                    <div class="input-group-mobile mt-3">
+                        <div class="input-label"><i class="fas fa-shield-alt"></i> 月度社保 (元)</div>
+                        <input type="number" class="form-control form-control-mobile" id="otherSocialSecurity" value="0" step="0.01">
+                    </div>
+                    
+                    <div class="input-group-mobile">
+                        <div class="input-label"><i class="fas fa-home"></i> 月度公积金 (元)</div>
+                        <input type="number" class="form-control form-control-mobile" id="otherHousingFund" value="0" step="0.01">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 折叠区域：月度激励和其他福利 -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" id="toggleBenefits">
+                    <div class="input-label"><i class="fas fa-gift"></i> 附加福利 (点击展开)</div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                
+                <div class="collapsible-content" id="benefitsContent">
+                    <div class="input-group-mobile">
+                        <div class="input-label"><i class="fas fa-gift"></i> 月度激励 (元)</div>
+                        <input type="number" class="form-control form-control-mobile" id="monthlyIncentive" value="0" step="0.01">
+                    </div>
+                    
+                    <div class="input-group-mobile">
+                        <div class="input-label"><i class="fas fa-hand-holding-heart"></i> 其它福利 (元)</div>
+                        <input type="number" class="form-control form-control-mobile" id="otherBenefits" value="0" step="0.01">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="result-section">
+            <div class="result-card">
+                <div class="result-title" id="toggleResults">
+                    <i class="fas fa-chevron-down"></i> 报价与毛利率结果
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">浩鲸单价 (元/人天):</span>
+                    <span class="result-value primary-result" id="resultWhalePrice">0.00</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">实际毛利率 (%):</span>
+                    <span class="result-value success-result" id="resultActualMargin">0.00</span>
+                </div>
+                
+                <div class="collapse-content" id="detailedResults">
+                    <div class="result-item">
+                        <span class="result-label">月结算额 (元):</span>
+                        <span class="result-value" id="resultMonthlySettlement">0.00</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">年度软收 (元)(含税):</span>
+                        <span class="result-value" id="resultAnnualRevenue">0.00</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">月度成本 (元):</span>
+                        <span class="result-value" id="resultMonthlyCost">0.00</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">年度成本 (元):</span>
+                        <span class="result-value" id="resultAnnualCost">0.00</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">年度毛利 (元):</span>
+                        <span class="result-value" id="resultAnnualGrossProfit">0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary btn-mobile" onclick="calculateAll()">
+                    <i class="fas fa-calculator"></i> 重新计算
+                </button>
+                <button class="btn btn-outline-primary btn-mobile" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-title"><i class="fas fa-info-circle"></i> 使用说明</div>
+                <p>1. 修改人选、外部报价和薪资（高亮显示的字段）</p>
+                <p>2. 选择城市自动填充社保和公积金</p>
+                <p>3. 选择"其他"可手动输入社保公积金</p>
+                <p>4. 点击"附加福利"可展开填写月度激励和其它福利（如有）</p>
+                <p>5. 点击标题可展开/折叠详细计算结果</p>
+                <p class="mb-0">6. 点击"重新计算"按钮手动更新结果，或点击"重置"恢复默认值</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 城市数据
+        const cityData = {
+            "北京": { socialSecurity: 1807.57, housingFund: 121.00 },
+            "成都": { socialSecurity: 1130.46, housingFund: 168.00 },
+            "南京": { socialSecurity: 1219.75, housingFund: 182.00 },
+            "西宁": { socialSecurity: 1230.12, housingFund: 320.00 },
+            "呼和浩特": { socialSecurity: 1252.39, housingFund: 181.60 },
+            "重庆": { socialSecurity: 1168.23, housingFund: 168.00 },
+            "广州": { socialSecurity: 1241.23, housingFund: 184.00 },
+            "南昌": { socialSecurity: 986.13, housingFund: 208.00 },
+            "乌鲁木齐": { socialSecurity: 1259.76, housingFund: 136.00 },
+            "上海": { socialSecurity: 2005.49, housingFund: 215.00 },
+            "兰州": { socialSecurity: 1114.71, housingFund: 162.00 },
+            "石家庄": { socialSecurity: 1120.97, housingFund: 616.00 },
+            "福州": { socialSecurity: 1070.50, housingFund: 157.00 },
+            "沈阳": { socialSecurity: 1173.63, housingFund: 252.00 },
+            "哈尔滨": { socialSecurity: 1295.08, housingFund: 166.00 },
+            "西藏": { socialSecurity: 1679.26, housingFund: 168.00 },
+            "西安": { socialSecurity: 1196.90, housingFund: 173.00 },
+            "深圳": { socialSecurity: 1162.28, housingFund: 188.80 },
+            "长沙": { socialSecurity: 1108.56, housingFund: 154.00 },
+            "合肥": { socialSecurity: 984.90, housingFund: 165.00 },
+            "济南": { socialSecurity: 1097.82, housingFund: 176.00 },
+            "郑州": { socialSecurity: 933.74, housingFund: 168.00 },
+            "天津": { socialSecurity: 1369.56, housingFund: 278.00 },
+            "其他": { socialSecurity: 0, housingFund: 0 }
+        };
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置城市选择事件
+            document.getElementById('citySelector').addEventListener('change', updateCityValues);
+            
+            // 为所有输入框添加输入监听事件
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateAll);
+            });
+            
+            // 设置折叠/展开事件 - 结果部分
+            document.getElementById('toggleResults').addEventListener('click', function() {
+                this.classList.toggle('collapsed');
+                document.getElementById('detailedResults').classList.toggle('show');
+            });
+            
+            // 设置折叠/展开事件 - 福利部分
+            document.getElementById('toggleBenefits').addEventListener('click', function() {
+                const content = document.getElementById('benefitsContent');
+                content.classList.toggle('show');
+                
+                // 更新图标
+                const icon = this.querySelector('i.fa-chevron-down');
+                if (content.classList.contains('show')) {
+                    icon.style.transform = 'rotate(0deg)';
+                    this.querySelector('.input-label i').className = 'fas fa-gift';
+                    this.querySelector('.input-label').innerHTML = '<i class="fas fa-gift"></i> 附加福利 (点击收起)';
+                } else {
+                    icon.style.transform = 'rotate(-90deg)';
+                    this.querySelector('.input-label i').className = 'fas fa-gift';
+                    this.querySelector('.input-label').innerHTML = '<i class="fas fa-gift"></i> 附加福利 (点击展开)';
+                }
+            });
+            
+            // 初始计算
+            calculateAll();
+        });
+
+        // 更新城市对应的社保和公积金值
+        function updateCityValues() {
+            const city = document.getElementById('citySelector').value;
+            const data = cityData[city];
+            
+            if (city === "其他") {
+                // 显示手动输入区域
+                document.getElementById('otherCityFields').classList.add('show');
+                document.getElementById('cityDisplay').style.display = 'none';
+                
+                // 更新显示值
+                document.getElementById('displaySocialSecurity').textContent = document.getElementById('otherSocialSecurity').value;
+                document.getElementById('displayHousingFund').textContent = document.getElementById('otherHousingFund').value;
+            } else {
+                // 隐藏手动输入区域
+                document.getElementById('otherCityFields').classList.remove('show');
+                document.getElementById('cityDisplay').style.display = 'block';
+                
+                if (data) {
+                    // 更新显示值
+                    document.getElementById('displaySocialSecurity').textContent = data.socialSecurity;
+                    document.getElementById('displayHousingFund').textContent = data.housingFund;
+                }
+            }
+            
+            calculateAll();
+        }
+
+        function calculateAll() {
+            // 读取输入值
+            const externalQuote = parseFloat(document.getElementById('externalQuote').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value);
+            const workDays = parseFloat(document.getElementById('workDays').value);
+            const idleRate = parseFloat(document.getElementById('idleRate').value) / 100;
+
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const monthlyIncentive = parseFloat(document.getElementById('monthlyIncentive').value) || 0;
+            const otherBenefits = parseFloat(document.getElementById('otherBenefits').value) || 0;
+            
+            // 获取社保和公积金值
+            let socialSecurity, housingFund;
+            const city = document.getElementById('citySelector').value;
+            
+            if (city === "其他") {
+                socialSecurity = parseFloat(document.getElementById('otherSocialSecurity').value) || 0;
+                housingFund = parseFloat(document.getElementById('otherHousingFund').value) || 0;
+            } else {
+                socialSecurity = parseFloat(document.getElementById('displaySocialSecurity').textContent) || 0;
+                housingFund = parseFloat(document.getElementById('displayHousingFund').textContent) || 0;
+            }
+            
+            // 计算浩鲸单价
+            const whaleUnitPrice = externalQuote * discount;
+            
+            // 计算月结算额
+            const monthlySettlement = whaleUnitPrice * workDays * (1 - idleRate) / 12;
+            
+            // 计算年度软收
+            const annualRevenue = monthlySettlement * 12 / 1.06;
+            
+            // 计算月度成本和年度成本
+            const monthlyCost = salary + socialSecurity + housingFund + monthlyIncentive + otherBenefits;
+            const annualCost = monthlyCost * 12;
+            
+            // 计算年度毛利和毛利率
+            const annualGrossProfit = annualRevenue - annualCost;
+            const actualMargin = (annualGrossProfit / annualRevenue) * 100;
+
+            // 更新页面结果显示
+            document.getElementById('resultWhalePrice').textContent = whaleUnitPrice.toFixed(2);
+            document.getElementById('resultMonthlySettlement').textContent = monthlySettlement.toFixed(2);
+            document.getElementById('resultAnnualRevenue').textContent = annualRevenue.toFixed(2);
+            document.getElementById('resultMonthlyCost').textContent = monthlyCost.toFixed(2);
+            document.getElementById('resultAnnualCost').textContent = annualCost.toFixed(2);
+            document.getElementById('resultAnnualGrossProfit').textContent = annualGrossProfit.toFixed(2);
+            document.getElementById('resultActualMargin').textContent = actualMargin.toFixed(2);
+        }
+        
+        function resetForm() {
+            document.getElementById('personName').value = '候选人A';
+            document.getElementById('externalQuote').value = '0';
+            document.getElementById('targetMargin').value = '25';
+            document.getElementById('discount').value = '1';
+            document.getElementById('workDays').value = '248';
+            document.getElementById('idleRate').value = '0';
+            document.getElementById('salary').value = '1000';
+            document.getElementById('monthlyIncentive').value = '0';
+            document.getElementById('otherBenefits').value = '0';
+            document.getElementById('citySelector').value = '北京';
+            document.getElementById('otherCityFields').classList.remove('show');
+            document.getElementById('cityDisplay').style.display = 'block';
+            
+            // 折叠福利部分
+            document.getElementById('benefitsContent').classList.remove('show');
+            const icon = document.querySelector('#toggleBenefits i.fa-chevron-down');
+            icon.style.transform = 'rotate(-90deg)';
+            document.querySelector('#toggleBenefits .input-label').innerHTML = '<i class="fas fa-gift"></i> 附加福利 (点击展开)';
+            
+            updateCityValues();
+            
+            calculateAll();
+        }
+    </script>
+</body>
+</html>
